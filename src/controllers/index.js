@@ -1,3 +1,7 @@
-const loginBtn = document.getElementById('Loginbtn');
+const Loginbtn = document.querySelector('#Loginbtn');
 
-loginBtn.addEventListener('click', () => {
+Loginbtn.addEventListener('click', handleClick);
+
+function handleClick() {
+      document.location='Login.html';
+}

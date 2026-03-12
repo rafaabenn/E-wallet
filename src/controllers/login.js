@@ -1,27 +1,27 @@
-import finduserbymail from "../models/database.js";
+import {findUserByMail} from "../Models/database.js";
+const mail = document.querySelector("#mail");
+const password = document.querySelector("#password");
+const submit = document.querySelector("#submitbtn");
 
-const mailInput = document.getElementById("mail");
-const passwordInput = document.getElementById("password");
-const submitbtn = document.getElementById("submitbtn");
-//??
-const resultEl = document.getElementById("result");
+submit.addEventListener("click", handleSubmit);
 
-submitbtn.addEventListener("click", handleSubmit);
+function handleSubmit(e) {
+  e.preventDefault();
+  const mailValue = mail.value;
+  const passwordValue = password.value;
+  
+  submit.textContent = "checking ...";
+  // simuler la connexion à la base de données
+  setTimeout(() => {
+    const user = findUserByMail(mailValue, passwordValue);
+    if (user) {
+      // stocker l'objet user dans le sessionStorage
+      sessionStorage.setItem("user", JSON.stringify(user));
 
-function handleSubmit(){
-    let mail = mailInput.value;
-    let password = passwordInput.value;
-
-    setTimeout(() => {
-        if (!mail || !password) {
-                    alert("Veuillez remplir tous les champs.");
-                    return; 
-                }
-                else{
-                const user = finduserbymail(mail, password);
-                if (user) {
-                    document
-            }
-        }
-    }, timeout);
+      // rediriger vers la page dashboard
+      document.location = "dashboard.html";
+    } else {
+      alert("Invalid email or password");
+    }
+  }, 1000);
 }
