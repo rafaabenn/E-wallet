@@ -1,43 +1,25 @@
 import logout from "./logout.js";
 
-// recuperer l'user connecté à partir du sessionStorage
 const user = JSON.parse(sessionStorage.getItem("user"));
-if (user) {
-  // afficher les informations de l'utilisateur sur la page
-  document.querySelector("#greetingName").textContent = user.name;
 
-  // balance
-  document.querySelector("#availableBalance").textContent =
-    user.wallet.cards.reduce((total, ba) => total + ba.balance,0) +
-    " " +
-    user.wallet.currency;
-
-  // nombre de cartes actives
-  document.querySelector("#activeCards").textContent = user.wallet.cards.filter((c) => {
-    const [day, month, year] = c.expiry.split("-");
-    const expiryDate = new Date(`${year}-${month}-${day}`);
-    return expiryDate > new Date();
-  }).length;
-
-  // dépenses
-  document.querySelector("#monthlyExpenses").textContent =
-    user.wallet.transactions
-      .filter((t) => t.type === "debit")
-      .reduce((total, t) => total + t.amount, 0) +
-    " " +
-    user.wallet.currency;
-
-  // revenus
-  document.querySelector("#monthlyIncome").textContent =
-    user.wallet.transactions
-      .filter((t) => t.type === "credit")
-      .reduce((total, t) => total + t.amount, 0) +
-    " " +
-    user.wallet.currency;
-
-  //  logout
-  document.querySelector("#logout").addEventListener("click", logout);
+if (!user) {
+    document.location = "Login.html";
 } else {
-  // rediriger vers login
-  document.location = "Login.html";
+    const { name, wallet, wallet: { cards, transactions, currency } } = user;
+    
+    document.getElementById("greetingName").textContent = name;
+    
+    document.getElementById("availableBalance").textContent = 
+        cards.reduce((sum, c) => sum + c.balance, 0) + " " + currency;
+    
+    document.getElementById("activeCards").textContent = 
+        cards.filter(c => new Date(c.expiry.split("-").reverse().join("-")) > new Date()).length;
+    
+    document.getElementById("monthlyExpenses").textContent = 
+        transactions.filter(t => t.type === "debit").reduce((sum, t) => sum + t.amount, 0) + " " + currency;
+    
+    document.getElementById("monthlyIncome").textContent = 
+        transactions.filter(t => t.type === "credit").reduce((sum, t) => sum + t.amount, 0) + " " + currency;
+    
+    document.getElementById("logout").addEventListener("click", logout);
 }
