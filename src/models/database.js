@@ -109,4 +109,42 @@ const ExistBeneficaire = (numbercard) => {
   );
 };
 
-export { findUserByMail, ExistBeneficaire };
+const findCardByNumber = (user, cardNumber) => {
+  return user.wallet.cards.find((c) => c.numcards === cardNumber);
+};
+
+const findBeneficiaryCard = (numbercard) => {
+  for (const user of database.users) {
+    const card = user.wallet.cards.find((c) => c.numcards === numbercard);
+    if (card) {
+      return { user, card };
+    }
+  }
+  return null;
+};
+
+const createTransaction = (type, amount, from, to) => {
+  return {
+    id: Date.now().toString(),
+    type,
+    amount,
+    date: new Date().toLocaleDateString("fr-FR").split("/").join("-"),
+    from,
+    to,
+  };
+};
+
+const transferMoney = (senderUser, senderCard, receiverUser, receiverCard, amount) => {
+  senderCard.balance -= amount;
+  receiverCard.balance += amount;
+
+  const debitTransaction = createTransaction("debit", amount, senderCard.numcards, receiverCard.numcards);
+  const creditTransaction = createTransaction("credit", amount, senderCard.numcards, receiverCard.numcards);
+
+  senderUser.wallet.transactions.push(debitTransaction);
+  receiverUser.wallet.transactions.push(creditTransaction);
+
+  return { debitTransaction, creditTransaction };
+};
+
+export { findUserByMail, ExistBeneficaire, findCardByNumber, findBeneficiaryCard, transferMoney };
