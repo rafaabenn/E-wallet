@@ -11,7 +11,8 @@ const user = JSON.parse(sessionStorage.getItem("user"));
 if (!user) {
   document.location = "login.html";
 } else {
-  const { name, wallet, currency } = user;
+  const { name, wallet } = user;
+    const { currency } = wallet;
 
   // Dashboard 
   const greetingName = document.getElementById("greetingName");

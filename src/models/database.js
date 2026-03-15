@@ -147,4 +147,11 @@ const transferMoney = (senderUser, senderCard, receiverUser, receiverCard, amoun
   return { debitTransaction, creditTransaction };
 };
 
-export { findUserByMail, ExistBeneficaire, findCardByNumber, findBeneficiaryCard, transferMoney };
+export {
+  database,
+  findUserByMail,
+  ExistBeneficaire,
+  findCardByNumber,
+  findBeneficiaryCard,
+  transferMoney
+};

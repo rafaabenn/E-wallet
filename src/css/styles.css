@@ -1126,3 +1126,9 @@ footer {
     display: none;
   }
 }
+
+#transferMessage {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
