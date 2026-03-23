@@ -1,27 +1,32 @@
-import {findUserByMail} from "../models/database.js";
 
-const mail = document.querySelector("#mail");
-const password = document.querySelector("#password");
-const submit = document.querySelector("#submitbtn");
+import {finduserbymail} from "../Model/database.js";
 
-submit.addEventListener("click", handleSubmit);
+// recuperation des elements DOM
+const mailInput = document.getElementById("mail");
+const passwordInput  = document.getElementById("password");
+const submitBtn = document.getElementById("submitbtn");
+const display   = document.getElementById("display");
+// event listener sur le bouton Se connecter
+submitBtn.addEventListener("click", handleSubmit);
 
-function handleSubmit(e) {
-    e.preventDefault();
-    const mailValue = mail.value;
-    const passwordValue = password.value;
-    
-    submit.textContent = "checking ...";
-    // simulation de la connexion à la BD
-    setTimeout(() => {
-        const user = findUserByMail(mailValue, passwordValue);
-        if (user) {
-        sessionStorage.setItem("user", JSON.stringify(user));
+function handleSubmit() {
+    let mail = mailInput.value;
+    let password = passwordInput.value;
 
-        // rediriger vers dashboard
-        document.location = "dashboard.html";
-        } else {
-        alert("Invalid email or password");
-        }
-    }, 1000);
+    if (!mail || password === "") {
+        alert("Bad credentials.");
+    } else {
+        submitBtn.textContent = "Checking!!!";
+        const user = finduserbymail(mail, password);
+
+        setTimeout(() => {
+            if (user) {
+                sessionStorage.setItem("currentUser", JSON.stringify(user));
+                document.location = "dashboard.html";
+            } else {
+                alert("Bad credentials.");
+                submitBtn.textContent = "Se connecter";
+            }
+        }, 2000);
+    }
 }

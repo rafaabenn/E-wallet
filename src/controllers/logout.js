@@ -1,5 +1,5 @@
 function logout() {
-  sessionStorage.removeItem("user");
+  sessionStorage.removeItem("currentUser");
   document.location = "login.html";
 }
 
