@@ -119,6 +119,7 @@ function renderCards() {
 }
 renderCards();
 
+/*
 function checkUser(numcompte) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -131,7 +132,15 @@ function checkUser(numcompte) {
     }, 1000);
   });
 }
-
+*/
+async function checkUser(numcompte) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const destinataire = finduserbyaccount(numcompte);
+  if (!destinataire) throw new Error("Destinataire non trouvé");
+  return destinataire;
+}
+  
+/*
 function checkSolde(expediteur, amount) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -143,7 +152,15 @@ function checkSolde(expediteur, amount) {
     }, 1000);
   });
 }
+*/
 
+async function checkSolde(expediteur, amount) {
+  await new Promise (resolve => setTimeout(resolve, 1000));
+  if (expediteur.wallet.balance < amount) throw new Error("Solde insuffisant");
+}
+
+
+/*
 function updateSolde(expediteur, destinataire, amount) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -153,7 +170,15 @@ function updateSolde(expediteur, destinataire, amount) {
     }, 1000);
   });
 }
+*/
 
+async function updateSolde(expediteur, destinataire, amount) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  expediteur.wallet.balance -= amount;
+  destinataire.wallet.balance += amount;
+}
+
+/*
 function addtransactions(expediteur, destinataire, amount) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -171,7 +196,22 @@ function addtransactions(expediteur, destinataire, amount) {
     }, 1000);
   });
 }
+*/
+async function addtransactions(expediteur, destinataire, amount) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  expediteur.wallet.transactions.push({
+    amount, description: "Transfer sent",
+    type: "debit", status: "completed",
+    date: new Date().toLocaleDateString()
+  });
+  destinataire.wallet.transactions.push({
+    amount, description: "Transfer received",
+    type: "credit", status: "completed",
+    date: new Date().toLocaleDateString()
+  });
+}
 
+/*
 function transfer(expediteur, numcompte, amount) {
   checkUser(numcompte)
     .then((destinataire) => checkSolde(expediteur, amount).then(() => destinataire))
@@ -186,7 +226,23 @@ function transfer(expediteur, numcompte, amount) {
       alert(error);
     });
 }
+*/
 
+async function transfer(expediteur, numcompte, amount) {
+  try {
+    const destinataire = await checkUser(numcompte);
+    await checkSolde(expediteur, amount);
+    await updateSolde(expediteur, destinataire, amount);
+    await addtransactions(expediteur, destinataire, amount);
+    alert("Transfert réussi !");
+    renderDashboard();
+    closeTransfer();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+/*
 function handleTransfer(e) {
   e.preventDefault();
   const beneficiaryId = document.getElementById("beneficiary").value;
@@ -194,6 +250,15 @@ function handleTransfer(e) {
   const amount = Number(document.getElementById("amount").value);
 
   transfer(user, beneficiaryAccount, amount);
+}
+*/
+
+async function handleTransfer(e) {
+  e.preventDefault();
+  const beneficiaryId = document.getElementById("beneficiary").value;
+  const beneficiaryAccount = findbeneficiarieByid(user.id, beneficiaryId).account;
+  const amount = Number(document.getElementById("amount").value);
+  await transfer(user, beneficiaryAccount, amount);
 }
 
 // -----------Recharger-------
@@ -217,6 +282,7 @@ function renderCardsR() {
 }
 renderCardsR();
 
+/*
 function checkAmount(amount) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -232,7 +298,18 @@ function checkAmount(amount) {
     }, 500);
   });
 }
+*/
 
+async function checkAmount(amount) {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  if (!amount || isNaN(amount)) throw new Error("Veuillez entrer un montant valide");
+  if (amount < 10) throw new Error("Le montant minimum est 10 MAD");
+  if (amount > 5000) throw new Error("Le montant maximum est 5000 MAD");
+  return amount;
+}
+
+
+/*
 function checkCard(numcard, amount) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -249,7 +326,18 @@ function checkCard(numcard, amount) {
     }, 1000);
   });
 }
+*/
 
+async function checkCard(numcard, amount) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const card = user.wallet.cards.find(c => String(c.numcards) === String(numcard));
+  if (!card)                          throw new Error("Carte non trouvée");
+  if (card.balance < amount)          throw new Error("Solde de la carte insuffisant");
+  if (new Date(card.expiry) < new Date()) throw new Error("Carte expirée");
+  return card;
+}
+
+/*
 function updateSoldeRecharger(expediteur, amount) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -258,7 +346,13 @@ function updateSoldeRecharger(expediteur, amount) {
     }, 1000);
   });
 }
+*/
+async function updateSoldeRecharger(expediteur, amount) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  expediteur.wallet.balance += amount;
+}
 
+/*
 function addRechargerTransaction(expediteur, amount, valid) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -273,8 +367,20 @@ function addRechargerTransaction(expediteur, amount, valid) {
     }, 1000);
   });
 }
+*/
 
+async function addRechargerTransaction(expediteur, amount, valid) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  expediteur.wallet.transactions.push({
+    amount,
+    description: valid ? "Recharge valide" : "Recharge échouée",
+    type: valid ? "recharge(succee)" : "recharge(echoue)",
+    status: valid ? "succee" : "echoue",
+    date: new Date().toLocaleDateString()
+  });
+}
 
+/*
 function recharger(expediteur, numcard, amount) {
   checkAmount(amount)
     .then(() => checkCard(numcard, amount))
@@ -291,7 +397,24 @@ function recharger(expediteur, numcard, amount) {
       closeRecharger();
     });
 }
+*/
+async function recharger(expediteur, numcard, amount) {
+  try {
+    await checkAmount(amount);
+    await checkCard(numcard, amount);
+    await updateSoldeRecharger(expediteur, amount);
+    await addRechargerTransaction(expediteur, amount, true);
+    alert("Recharge effectuée avec succès !");
+  } catch (error) {
+    alert(error.message);
+    await addRechargerTransaction(expediteur, amount, false).catch(() => {});
+  } finally {
+    renderDashboard();
+    closeRecharger();
+  }
+}
 
+/*
 function handleRecharger(e) {
   e.preventDefault();
 
@@ -299,4 +422,11 @@ function handleRecharger(e) {
   const amount = Number(document.getElementById("rechargeAmount").value);
 
   recharger(user, numcard, amount);
+}*/
+async function handleRecharger(e) {
+  e.preventDefault();
+  const numcard = Number(document.getElementById("rechargeCard").value);
+  const amount = Number(document.getElementById("rechargeAmount").value);
+
+  await recharger(user, numcard, amount);
 }

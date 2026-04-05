@@ -1,5 +1,5 @@
 
-import {finduserbymail} from "../models/database.js";
+import {finduserbymail} from "../Models/database";
 
 // recuperation des elements DOM
 const mailInput = document.getElementById("mail");
